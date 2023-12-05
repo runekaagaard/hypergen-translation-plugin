@@ -17,6 +17,7 @@ class Command(BaseCommand):
         for module in modules:
             translations = api.extract_translations(module)
             from pprint import pprint
-            pprint({k: [".".join(x) for x in v] for k, v in translations.items()})
+            # pprint({k: [".".join(str(y) for y in x) for x in v] for k, v in translations.items()})
+            pprint(translations)
 
         self.stdout.write(self.style.SUCCESS("I rule!"))

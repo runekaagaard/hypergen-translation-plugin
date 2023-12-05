@@ -1,6 +1,9 @@
-from django.utils.cache import defaultdict
+import ast, re, inspect, os
+
 from hypergen.template import base_element, Component
-import ast, re, inspect
+
+from django.utils.cache import defaultdict
+from django.conf import settings
 
 TRANSLATABLE_ATTRIBUTES = {
     "alt", "placeholder", "title", "label", "aria-label", "aria-placeholder", "aria-describedby", "value"
@@ -38,11 +41,8 @@ class ASTVisitor(ast.NodeVisitor):
                 # And it's either
                 and (
                     # A class subclassing base_element or Component
-                    (
-                        inspect.isclass(getattr(self.module, node.func.id)) and
-                        issubclass(getattr(self.module, node.func.id), (base_element, Component))
-                        # Which are not excluded
-                        and node.func.id not in NON_TRANSLATABLE_ELEMENTS)
+                    (inspect.isclass(getattr(self.module, node.func.id)) and
+                     issubclass(getattr(self.module, node.func.id), (base_element, Component)))
                     # OR a function marked with hypergen_is_component
                     or (inspect.isfunction(getattr(self.module, node.func.id)) and
                         getattr(getattr(self.module, node.func.id), "hypergen_is_component", False) is True))):
@@ -51,19 +51,27 @@ class ASTVisitor(ast.NodeVisitor):
             return
 
         # Translation strings from constant args not in list.
-        for arg in node.args:
-            if isinstance(arg, ast.Constant) and isinstance(arg.value, str):
-                if self.is_translatable.search(arg.value):
-                    self.translations[arg.value].add(tuple(self.stack))
+        if node.func.id not in NON_TRANSLATABLE_ELEMENTS:
+            for arg in node.args:
+                if isinstance(arg, ast.Constant) and isinstance(arg.value, str):
+                    if self.is_translatable.search(arg.value):
+                        self.add_string(arg.value, arg.lineno)
         # Translation strings from constant args in list.
         for keyword in node.keywords:
             if keyword.arg in TRANSLATABLE_ATTRIBUTES and type(keyword.value) is ast.Constant and type(
                     keyword.value.value) is str:
                 if self.is_translatable.search(keyword.value.value):
-                    self.translations[keyword.value.value].add(tuple(self.stack))
+                    self.add_string(keyword.value.value, keyword.value.lineno)
 
         # Continue visit.
         self.generic_visit(node)
+
+    def add_string(self, s, lineno):
+        self.translations[s].add((
+            os.path.relpath(self.module.__file__, start=settings.HYPERGEN_TRANSLATION_PROJECT_DIR),
+            ".".join(self.stack),
+            lineno,
+        ))
 
 def extract_translations(module):
     source = inspect.getsource(module)
