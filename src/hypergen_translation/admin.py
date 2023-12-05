@@ -3,6 +3,7 @@ from django.conf import settings
 from django.utils.safestring import mark_safe
 
 from .models import String, Occurrence, Language, Translation
+from .filters import HasOccurrenceFilter
 
 class OccurrenceInline(admin.TabularInline):
     model = Occurrence
@@ -27,10 +28,10 @@ class TranslationInline(admin.TabularInline):
 
 class StringAdmin(admin.ModelAdmin):
     list_display = ('value', 'added', 'updated')
-    readonly_fields = ('added', 'updated')
+    readonly_fields = ('value', 'added', 'updated')
     inlines = [TranslationInline, OccurrenceInline]
     search_fields = ('value',)
-    list_filter = ('added', 'updated')
+    list_filter = (HasOccurrenceFilter, 'added', 'updated')
 
 admin.site.register(String, StringAdmin)
 
