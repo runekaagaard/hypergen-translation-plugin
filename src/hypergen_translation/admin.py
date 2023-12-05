@@ -33,6 +33,17 @@ class StringAdmin(admin.ModelAdmin):
     search_fields = ('value',)
     list_filter = (HasTranslationFilter, HasOccurrenceFilter, 'added', 'updated')
 
+    def save_formset(self, request, form, formset, change):
+        instances = formset.save(commit=False)
+        for instance in instances:
+            if isinstance(instance, Translation):
+                if not instance.pk:  # Checking if the instance is being created
+                    instance.added_by = request.user
+                else:
+                    instance.updated_by = request.user
+                instance.save()
+        formset.save_m2m()  # For many-to-many relationships
+
 admin.site.register(String, StringAdmin)
 
 class OccurrenceAdmin(admin.ModelAdmin):
