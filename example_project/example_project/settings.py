@@ -122,4 +122,4 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 HYPERGEN_TRANSLATION_MODULES = ["hypergen_first_app.views"]
 HYPERGEN_TRANSLATION_PROJECT_DIR = BASE_DIR.parent
-print(HYPERGEN_TRANSLATION_PROJECT_DIR)
+HYPERGEN_TRANSLATION_GITHUB = "https://github.com/runekaagaard/hypergen-translation-plugin"

@@ -1,8 +1,5 @@
 from django.db import models
 
-from django.db import models
-from django.utils import timezone
-
 class String(models.Model):
     added = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
@@ -43,16 +40,6 @@ class Language(models.Model):
     def __str__(self):
         return self.language_code
 
-class TranslationStatus(models.Model):
-    status = models.CharField(max_length=10)
-
-    class Meta:
-        verbose_name = "Translation Status"
-        verbose_name_plural = "Translation Statuses"
-
-    def __str__(self):
-        return self.status
-
 class Translation(models.Model):
     added = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
@@ -62,7 +49,7 @@ class Translation(models.Model):
                                    null=True, blank=True)
     string = models.ForeignKey(String, on_delete=models.PROTECT)
     language = models.ForeignKey(Language, on_delete=models.PROTECT)
-    status = models.ForeignKey(TranslationStatus, on_delete=models.PROTECT)
+    value = models.TextField()
 
     class Meta:
         verbose_name = "Translation"
