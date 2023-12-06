@@ -47,7 +47,7 @@ class Translation(models.Model):
                                  null=True, blank=True)
     updated_by = models.ForeignKey('auth.User', related_name='translations_updated', on_delete=models.PROTECT,
                                    null=True, blank=True)
-    string = models.ForeignKey(String, on_delete=models.PROTECT)
+    string = models.ForeignKey(String, on_delete=models.PROTECT, unique=True)
     language = models.ForeignKey(Language, on_delete=models.PROTECT)
     value = models.TextField()
 
@@ -56,4 +56,4 @@ class Translation(models.Model):
         verbose_name_plural = "Translations"
 
     def __str__(self):
-        return f"{self.string} - {self.language}"
+        return self.value

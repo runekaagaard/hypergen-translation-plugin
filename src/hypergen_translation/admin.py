@@ -49,6 +49,8 @@ admin.site.register(String, StringAdmin)
 class OccurrenceAdmin(admin.ModelAdmin):
     list_display = ('string', 'file_path', 'python_path', 'line_number', 'added', 'updated')
     readonly_fields = list_display
+    search_fields = ("file_path", "python_path", "string__value")
+    list_filter = ("file_path",)
 
 admin.site.register(Occurrence, OccurrenceAdmin)
 
@@ -60,6 +62,8 @@ admin.site.register(Language, LanguageAdmin)
 
 class TranslationAdmin(admin.ModelAdmin):
     list_display = ('string', 'language', 'added', 'updated', 'added_by', 'updated_by')
+    list_filter = ("added", "updated")
     readonly_fields = ('added', 'updated', 'added_by', 'updated_by')
+    search_fields = ('value',)
 
 admin.site.register(Translation, TranslationAdmin)
