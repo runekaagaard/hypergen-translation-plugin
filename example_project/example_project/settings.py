@@ -49,6 +49,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'hypergen.context.context_middleware',  # Required Hypergen middleware.
+    'django.middleware.locale.LocaleMiddleware',  # Enable translations
 ]
 
 ROOT_URLCONF = 'example_project.urls'
@@ -123,3 +124,12 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 HYPERGEN_TRANSLATION_MODULES = ["hypergen_first_app.views"]
 HYPERGEN_TRANSLATION_PROJECT_DIR = BASE_DIR.parent
 HYPERGEN_TRANSLATION_GITHUB = "https://github.com/runekaagaard/hypergen-translation-plugin"
+
+# Enable translations.
+USE_I18N = True
+USE_L10N = True
+LANGUAGE_CODE = 'da'
+LANGUAGES = [
+    ('en', 'English'),
+    ('da', 'Danish'),
+]

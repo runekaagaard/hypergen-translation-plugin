@@ -1,9 +1,12 @@
-import ast, re, inspect, os
+import ast, re, inspect, os, json
 
+from hypergen.imports import context
 from hypergen.template import base_element, Component
+from hypergen_translation.models import Occurrence, String, Translation
 
 from django.utils.cache import defaultdict
 from django.conf import settings
+from django.core.cache import cache
 
 TRANSLATABLE_ATTRIBUTES = {
     "alt", "placeholder", "title", "label", "aria-label", "aria-placeholder", "aria-describedby", "value"
@@ -73,10 +76,45 @@ class ASTVisitor(ast.NodeVisitor):
             lineno,
         ))
 
-def extract_translations(module):
+def collect_translations(module):
     source = inspect.getsource(module)
     tree = ast.parse(source)
     visitor = ASTVisitor(module)
     visitor.visit(tree)
 
     return visitor.translations
+
+def save_translations(translations):
+    Occurrence.objects.all().delete()
+    for value, occurences in translations.items():
+        string, _ = String.objects.get_or_create(value=value)
+        for file_path, python_path, line_number in occurences:
+            Occurrence.objects.create(string=string, file_path=file_path, python_path=python_path,
+                                      line_number=line_number)
+
+def set_translations():
+    translations = {}
+    for translation in Translation.objects.all():
+        if translation.language.language_code not in translations:
+            translations[translation.language.language_code] = {}
+        translations[translation.language.language_code][translation.string.value] = translation.value
+
+    cache.set("hypergen_translations", translations)
+
+def get_translations():
+    translations = cache.get("hypergen_translations")
+    if translations is None:
+        print("setting")
+        set_translations()
+        translations = cache.get("hypergen_translations")
+        assert translations is not None, "cache mechanism error"
+    else:
+        print("getting")
+
+    return translations
+
+def translate(language_code, s):
+    try:
+        return context["hypergen_translation"]["translations"][language_code][s]
+    except:
+        return s

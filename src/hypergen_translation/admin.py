@@ -27,10 +27,10 @@ class TranslationInline(admin.TabularInline):
     extra = 0
 
 class StringAdmin(admin.ModelAdmin):
-    list_display = ('value', 'added', 'updated')
+    list_display = ('original_value', 'translations')
     readonly_fields = ('value', 'added', 'updated')
     inlines = [TranslationInline, OccurrenceInline]
-    search_fields = ('value',)
+    search_fields = ('value', 'translation__value')
     list_filter = (HasTranslationFilter, HasOccurrenceFilter, 'added', 'updated')
 
     def save_formset(self, request, form, formset, change):
@@ -44,6 +44,13 @@ class StringAdmin(admin.ModelAdmin):
                 instance.save()
         formset.save_m2m()  # For many-to-many relationships
 
+    def original_value(self, obj):
+        return obj.value[:40]
+
+    def translations(self, obj):
+        return mark_safe("<br >".join(
+            f"<b>{x.language.language_code}: </b>{x.value[:40]}" for x in obj.translation_set.all()))
+
 admin.site.register(String, StringAdmin)
 
 class OccurrenceAdmin(admin.ModelAdmin):
@@ -52,10 +59,10 @@ class OccurrenceAdmin(admin.ModelAdmin):
     search_fields = ("file_path", "python_path", "string__value")
     list_filter = ("file_path",)
 
-admin.site.register(Occurrence, OccurrenceAdmin)
+# admin.site.register(Occurrence, OccurrenceAdmin)
 
 class LanguageAdmin(admin.ModelAdmin):
-    list_display = ('language_code', 'added', 'updated')
+    list_display = ('language_code',)
     readonly_fields = ('added', 'updated')
 
 admin.site.register(Language, LanguageAdmin)
@@ -64,6 +71,6 @@ class TranslationAdmin(admin.ModelAdmin):
     list_display = ('string', 'language', 'added', 'updated', 'added_by', 'updated_by')
     list_filter = ("added", "updated")
     readonly_fields = ('added', 'updated', 'added_by', 'updated_by')
-    search_fields = ('value',)
+    search_fields = ('value', 'string__value')
 
-admin.site.register(Translation, TranslationAdmin)
+# admin.site.register(Translation, TranslationAdmin)

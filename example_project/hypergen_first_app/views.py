@@ -2,14 +2,18 @@
 # get it all :)
 from hypergen.imports import *
 from hypergen.template import component
+from hypergen_translation.plugins import TranslationPlugin
 
 from contextlib import contextmanager
 import codecs
+
+from django.utils import translation
 
 # Templates - as your app grows you probably want to move them to a templates.py file.
 
 @contextmanager  # base templates must be context managers that yields where the main content will be.
 def base_template():
+    translation.activate("da")
     """
     This base template is meant to be shared between your views.
     """
@@ -21,7 +25,7 @@ def base_template():
                     "Hello hypergen_first_app")  # arguments to elements becomes the html innerText of the element.
             link("https://unpkg.com/simpledotcss@2.0.7/simple.min.css")  # include all you html5 boilerplate.
         with body():  # warning, don't set the target_id directly on the body element, does not work!
-            h1("Hello hypergen_first_app")
+            h1("Hello hypergen_first_app", title="translate this")
             p(i("Congratulations on installing your very first Django Hypergen app!")
              )  # elements can take elements.
 
@@ -63,12 +67,25 @@ def content_template(encrypted_message=None):
 
 # Views - one view normally have multiple actions.
 
-@liveview(perm=NO_PERM_REQUIRED, base_template=base_template)
+@liveview(perm=NO_PERM_REQUIRED, base_template=base_template, user_plugins=[TranslationPlugin()])
 def my_view(request):
     """
     Views renders html and binds frontend events to actions.
     """
     content_template()
+    p("stines nye text 1111111111111111111111")
+    hprint(context.hypergen_translation["translations"])
+
+@contextmanager
+def base_template2():
+    translation.activate("da")
+    yield
+
+base_template2.target_id = "bbb"
+
+@liveview(perm=NO_PERM_REQUIRED, base_template=base_template2, user_plugins=[TranslationPlugin()])
+def my_view2(request):
+    p("ccccc")
 
 # Actions - if you have a lot, move them to a actions.py file.
 

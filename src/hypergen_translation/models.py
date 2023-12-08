@@ -1,4 +1,6 @@
 from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 class String(models.Model):
     added = models.DateTimeField(auto_now_add=True)
@@ -47,7 +49,7 @@ class Translation(models.Model):
                                  null=True, blank=True)
     updated_by = models.ForeignKey('auth.User', related_name='translations_updated', on_delete=models.PROTECT,
                                    null=True, blank=True)
-    string = models.ForeignKey(String, on_delete=models.PROTECT, unique=True)
+    string = models.ForeignKey(String, on_delete=models.PROTECT)
     language = models.ForeignKey(Language, on_delete=models.PROTECT)
     value = models.TextField()
 
@@ -57,3 +59,8 @@ class Translation(models.Model):
 
     def __str__(self):
         return self.value
+
+@receiver(post_save, sender=Translation)
+def post_save_translation(sender, instance, **kwargs):
+    from hypergen_translation import api
+    api.set_translations()
