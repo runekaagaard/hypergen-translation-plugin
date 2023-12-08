@@ -1,6 +1,7 @@
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.template.defaultfilters import truncatechars
 
 class String(models.Model):
     added = models.DateTimeField(auto_now_add=True)
@@ -8,7 +9,7 @@ class String(models.Model):
     value = models.TextField()
 
     def __str__(self):
-        return self.value
+        return truncatechars(self.value, 40)
 
     class Meta:
         verbose_name = "String"
@@ -58,7 +59,7 @@ class Translation(models.Model):
         verbose_name_plural = "Translations"
 
     def __str__(self):
-        return self.value
+        return truncatechars(self.value, 40)
 
 @receiver(post_save, sender=Translation)
 def post_save_translation(sender, instance, **kwargs):

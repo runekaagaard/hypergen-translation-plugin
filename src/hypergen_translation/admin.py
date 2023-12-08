@@ -45,11 +45,11 @@ class StringAdmin(admin.ModelAdmin):
         return super().save_formset(request, form, formset, *args, **kwargs)
 
     def original_value(self, obj):
-        return obj.value[:40]
+        return str(obj)
 
     def translations(self, obj):
         return mark_safe("<br >".join(
-            f"<b>{x.language.language_code}: </b>{x.value[:40]}" for x in obj.translation_set.all()))
+            f"<b>{x.language.language_code}: </b>{str(x)}" for x in obj.translation_set.all()))
 
 admin.site.register(String, StringAdmin)
 
