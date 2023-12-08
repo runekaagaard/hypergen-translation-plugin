@@ -33,16 +33,16 @@ class StringAdmin(admin.ModelAdmin):
     search_fields = ('value', 'translation__value')
     list_filter = (HasTranslationFilter, HasOccurrenceFilter, 'added', 'updated')
 
-    def save_formset(self, request, form, formset, change):
+    def save_formset(self, request, form, formset, *args, **kwargs):
         instances = formset.save(commit=False)
         for instance in instances:
             if isinstance(instance, Translation):
-                if not instance.pk:  # Checking if the instance is being created
+                if not instance.pk:
                     instance.added_by = request.user
                 else:
                     instance.updated_by = request.user
-                instance.save()
-        formset.save_m2m()  # For many-to-many relationships
+
+        return super().save_formset(request, form, formset, *args, **kwargs)
 
     def original_value(self, obj):
         return obj.value[:40]
@@ -53,24 +53,8 @@ class StringAdmin(admin.ModelAdmin):
 
 admin.site.register(String, StringAdmin)
 
-class OccurrenceAdmin(admin.ModelAdmin):
-    list_display = ('string', 'file_path', 'python_path', 'line_number', 'added', 'updated')
-    readonly_fields = list_display
-    search_fields = ("file_path", "python_path", "string__value")
-    list_filter = ("file_path",)
-
-# admin.site.register(Occurrence, OccurrenceAdmin)
-
 class LanguageAdmin(admin.ModelAdmin):
     list_display = ('language_code',)
     readonly_fields = ('added', 'updated')
 
 admin.site.register(Language, LanguageAdmin)
-
-class TranslationAdmin(admin.ModelAdmin):
-    list_display = ('string', 'language', 'added', 'updated', 'added_by', 'updated_by')
-    list_filter = ("added", "updated")
-    readonly_fields = ('added', 'updated', 'added_by', 'updated_by')
-    search_fields = ('value', 'string__value')
-
-# admin.site.register(Translation, TranslationAdmin)
