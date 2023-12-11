@@ -14,7 +14,8 @@ class OccurrenceInline(admin.TabularInline):
 
     def list_file_path(self, obj):
         if getattr(settings, 'HYPERGEN_TRANSLATION_GITHUB', None):
-            github_url = f"{settings.HYPERGEN_TRANSLATION_GITHUB}/blob/main/{obj.file_path}#L{obj.line_number}"
+            branch = getattr(settings, 'HYPERGEN_TRANSLATION_BRANCH', 'main')
+            github_url = f"{settings.HYPERGEN_TRANSLATION_GITHUB}/blob/{branch}/{obj.file_path}#L{obj.line_number}"
             return mark_safe(f'<a href="{github_url}" target="_blank">{obj.file_path}</a>')
         else:
             return obj.file_path

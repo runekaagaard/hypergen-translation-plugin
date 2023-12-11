@@ -37,7 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'hypergen',  # Hypergen must be added to serve static content.
     'hypergen_first_app',  # Add hypergen example app.
-    'hypergen_translation',  # Add hypergen example app.
+    'hypergen_translation',
 ]
 
 MIDDLEWARE = [
@@ -124,6 +124,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 HYPERGEN_TRANSLATION_MODULES = ["hypergen_first_app.views"]
 HYPERGEN_TRANSLATION_PROJECT_DIR = BASE_DIR.parent
 HYPERGEN_TRANSLATION_GITHUB = "https://github.com/runekaagaard/hypergen-translation-plugin"
+HYPERGEN_TRANSLATION_BRANCH = "main"
 
 # Enable translations.
 USE_I18N = True
