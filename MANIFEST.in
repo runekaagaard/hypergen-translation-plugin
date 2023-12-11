@@ -1,0 +1,7 @@
+prune src/hypergen_translation
+include src/hypergen_translation/*.py
+include src/hypergen_translation/migrations/*.py
+include src/hypergen_translation/management/*.py
+include src/hypergen_translation/management/commands/*.py
+include src/hypergen/static/hypergen/dist/hypergen.js
+include README.rst

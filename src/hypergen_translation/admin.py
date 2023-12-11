@@ -58,3 +58,12 @@ class LanguageAdmin(admin.ModelAdmin):
     readonly_fields = ('added', 'updated')
 
 admin.site.register(Language, LanguageAdmin)
+
+class TranslationAdmin(admin.ModelAdmin):
+    list_display = ('string', 'language', 'value')
+    list_editable = ('value',)
+    list_filter = ("language", "added", "updated")
+    readonly_fields = ('added', 'updated', 'added_by', 'updated_by')
+    search_fields = ('value', 'string__value')
+
+admin.site.register(Translation, TranslationAdmin)
