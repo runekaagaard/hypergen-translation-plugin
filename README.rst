@@ -31,6 +31,12 @@ Change `settings.py`::
     # Optionally link to another branch than main.´ on github.
     HYPERGEN_TRANSLATION_BRANCH = "dev"
 
+Collection collections and store it in the database::
+
+    python manage.py hypergen_translation_collect
+
+Then edit in the admin.
+
 Add plugin to liveviews and actions::
 
     from hypergen_translation.plugins import TranslationPlugin
