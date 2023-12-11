@@ -28,3 +28,11 @@ Change `settings.py`::
     HYPERGEN_TRANSLATION_PROJECT_DIR = BASE_DIR.parent
     # Optionally display link directly to file and linenumber for each translation occurence. 
     HYPERGEN_TRANSLATION_GITHUB = "https://github.com/runekaagaard/hypergen-translation-plugin"
+
+Add plugin to liveviews and actions::
+
+    from hypergen_translation.plugins import TranslationPlugin
+
+    @liveview(..., user_plugins=[TranslationPlugin()])
+    def my_view(request):
+        p("translate this!")

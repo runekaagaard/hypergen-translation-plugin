@@ -16,6 +16,6 @@ class Command(BaseCommand):
 
         for module in modules:
             translations = api.collect_translations(module)
-            api.update_translations(translations)
+            api.save_translations(translations)
             self.stdout.write(f"Processing {module}")
         self.stdout.write(self.style.SUCCESS("Translations extracted and updated!"))
