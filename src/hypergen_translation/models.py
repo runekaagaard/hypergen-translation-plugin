@@ -19,14 +19,13 @@ class Occurrence(models.Model):
     added = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
     string = models.ForeignKey(String, on_delete=models.PROTECT)
-    file_path = models.CharField(max_length=1024)
-    python_path = models.CharField(max_length=1024)
+    file_path = models.TextField()
+    python_path = models.TextField()
     line_number = models.IntegerField()
 
     class Meta:
         verbose_name = "Occurrence"
         verbose_name_plural = "Occurrences"
-        unique_together = ('string', 'file_path', 'line_number')
 
     def __str__(self):
         return f"{self.file_path}:{self.line_number}"
