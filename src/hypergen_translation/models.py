@@ -9,7 +9,7 @@ class String(models.Model):
     value = models.TextField()
 
     def __str__(self):
-        return truncatechars(self.value, 40)
+        return truncatechars(self.value, 120)
 
     class Meta:
         verbose_name = "String"
@@ -58,7 +58,7 @@ class Translation(models.Model):
         verbose_name_plural = "Translations"
 
     def __str__(self):
-        return truncatechars(self.value, 40)
+        return truncatechars(self.value, 120)
 
 @receiver(post_save, sender=Translation)
 def post_save_translation(sender, instance, **kwargs):
