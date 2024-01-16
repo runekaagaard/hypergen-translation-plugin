@@ -28,6 +28,7 @@ class TranslationInline(admin.TabularInline):
     extra = 0
 
 class StringAdmin(admin.ModelAdmin):
+    list_max_show_all = 5000
     list_display = ('original_value', 'translations')
     readonly_fields = ('value', 'added', 'updated')
     inlines = [TranslationInline, OccurrenceInline]

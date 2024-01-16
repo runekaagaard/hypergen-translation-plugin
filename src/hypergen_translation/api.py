@@ -2,7 +2,7 @@ import ast, re, inspect, os, json
 
 from hypergen.imports import context
 from hypergen.template import base_element, Component
-from hypergen_translation.models import Occurrence, String, Translation
+from hypergen_translation.models import Occurrence, String, Translation, Language
 
 from django.utils.cache import defaultdict
 from django.conf import settings
@@ -118,3 +118,32 @@ def translate(language_code, s):
         return context["hypergen_translation"]["translations"][language_code][s]
     except:
         return s
+
+import requests
+
+def deepl_translate(source_lang, target_lang):
+    language = Language.objects.get(language_code=target_lang)
+    translated_strings = Translation.objects.filter(language=language).values_list("string__pk", flat=True)
+    missing = list(String.objects.exclude(pk__in=translated_strings).values_list("pk", "value"))
+
+    response = requests.post(
+        'https://api.deepl.com/v2/translate',
+        headers={'Authorization': f'DeepL-Auth-Key {settings.HYPERGEN_TRANSLATION_DEEPL_API_KEY}'},
+        data={
+            'text': [x[1] for x in missing],
+            'source_lang': source_lang,
+            'target_lang': target_lang
+        },
+    )
+
+    if response.status_code == 200:
+        Translation.objects.bulk_create([
+            Translation(string_id=string_id, language=language, value=translation["text"])
+            for string_id, translation in zip([x[0] for x in missing],
+                                              response.json()['translations'])
+        ])
+
+        return len(missing)
+    else:
+        print(response.json())
+        raise Exception("Could not translate text.")
