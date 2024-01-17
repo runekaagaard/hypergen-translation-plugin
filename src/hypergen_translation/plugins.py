@@ -1,7 +1,8 @@
 from contextlib import contextmanager
 
 from hypergen.imports import context
-from hypergen_translation.api import get_translations, translate, TRANSLATABLE_ATTRIBUTES, NON_TRANSLATABLE_ELEMENTS
+from hypergen_translation.api import (
+    get_translations, translate, TRANSLATABLE_ATTRIBUTES, NON_TRANSLATABLE_ELEMENTS, add_missing_strings)
 
 from django.utils.translation import get_language
 from django.utils import translation
@@ -9,8 +10,11 @@ from django.utils import translation
 class TranslationPlugin:
     @contextmanager
     def context(self):
-        with context(at="hypergen_translation", translations=get_translations()):
+        with context(at="hypergen_translation", translations=get_translations(), missing=set()):
             yield
+            # todo: remove
+            print("Add missing", add_missing_strings(context["hypergen_translation"]["missing"]))
+            add_missing_strings(context["hypergen_translation"]["missing"])
 
     @contextmanager
     def wrap_element_init(self, element, children, attrs):

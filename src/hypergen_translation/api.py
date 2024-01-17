@@ -4,12 +4,14 @@ from hypergen.imports import context
 from hypergen.template import base_element, Component
 from hypergen_translation.models import Occurrence, String, Translation, Language
 
+import requests
+
 from django.utils.cache import defaultdict
 from django.conf import settings
 from django.core.cache import cache
 
 TRANSLATABLE_ATTRIBUTES = {
-    "alt", "placeholder", "title", "label", "aria-label", "aria-placeholder", "aria-describedby", "value"
+    "alt", "placeholder", "title", "label", "aria-label", "aria-placeholder", "aria-describedby"
 }
 NON_TRANSLATABLE_ELEMENTS = {
     "meta", "link", "base", "title", "style", "script", "noscript", "img", "iframe", "embed", "object", "param",
@@ -104,12 +106,9 @@ def set_translations():
 def get_translations():
     translations = cache.get("hypergen_translations")
     if translations is None:
-        print("setting")
         set_translations()
         translations = cache.get("hypergen_translations")
         assert translations is not None, "cache mechanism error"
-    else:
-        print("getting")
 
     return translations
 
@@ -117,9 +116,11 @@ def translate(language_code, s):
     try:
         return context["hypergen_translation"]["translations"][language_code][s]
     except:
+        context["hypergen_translation"]["missing"].add(s)
         return s
 
-import requests
+def add_missing_strings(strings):
+    String.objects.bulk_create([String(value=x) for x in strings])
 
 def deepl_translate(source_lang, target_lang):
     language = Language.objects.get(language_code=target_lang)
@@ -139,8 +140,8 @@ def deepl_translate(source_lang, target_lang):
     if response.status_code == 200:
         Translation.objects.bulk_create([
             Translation(string_id=string_id, language=language, value=translation["text"])
-            for string_id, translation in zip([x[0] for x in missing],
-                                              response.json()['translations'])
+            for (string_id, _), translation in zip(missing,
+                                                   response.json()['translations'])
         ])
 
         return len(missing)
